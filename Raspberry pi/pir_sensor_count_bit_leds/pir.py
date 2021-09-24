@@ -1,7 +1,5 @@
 import RPi.GPIO as GPIO
-import sys
 import signal
-import time
 
 # region bits explanation example
 # Binaire waardes per stap. Lees van rechts naar links.
@@ -50,7 +48,6 @@ def pir_triggered(pin):
                 GPIO.output(led, GPIO.LOW)
             
             print('Reset bits')
-
     else:
         print('No movement detected')
 
