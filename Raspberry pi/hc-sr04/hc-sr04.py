@@ -15,6 +15,9 @@ GREEN = 20
 YELLOW = 16
 RED = 12
 
+ledTime = time.time()
+activeLed = 0
+
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 GPIO.setup(GREEN, GPIO.OUT)
@@ -23,19 +26,28 @@ GPIO.setup(RED, GPIO.OUT)
 
 # region functions
 def light_green_led():
+    global activeLed
+
     GPIO.output(GREEN, GPIO.HIGH)
     GPIO.output(YELLOW, GPIO.LOW)
     GPIO.output(RED, GPIO.LOW)
+    activeLed = GREEN
 
 def light_yellow_led():
+    global activeLed
+
     GPIO.output(GREEN, GPIO.LOW)
     GPIO.output(YELLOW, GPIO.HIGH)
     GPIO.output(RED, GPIO.LOW)
+    activeLed = YELLOW
 
 def light_red_led():
+    global activeLed
+
     GPIO.output(GREEN, GPIO.LOW)
     GPIO.output(YELLOW, GPIO.LOW)
     GPIO.output(RED, GPIO.HIGH)
+    activeLed = RED
 
 def distance_senor_triggered():
     GPIO.output(TRIG, True)
@@ -57,17 +69,29 @@ def distance_senor_triggered():
     return distance
 
 def close_or_far_led_triggered(distance):
-    if distance >= 30:
-        light_green_led()
-    elif distance >= 20:
-        light_yellow_led()
-    elif distance >= 10:
-        light_red_led()
-    else:
+    global ledTime, activeLed
+
+    if time.time() >= ledTime + 10:
         leds = [GREEN, YELLOW, RED]
 
         for i, led in enumerate(leds):
             GPIO.output(led, GPIO.LOW)
+    else:
+        if distance >= 30:
+            if activeLed != GREEN:
+                ledTime = time.time()
+
+            light_green_led()
+        elif distance > 10:
+            if activeLed != YELLOW:
+                ledTime = time.time()
+
+            light_yellow_led()
+        elif distance <= 10:
+            if activeLed != RED:
+                ledTime = time.time()
+
+            light_red_led()
 # endregion
 
 while True:
